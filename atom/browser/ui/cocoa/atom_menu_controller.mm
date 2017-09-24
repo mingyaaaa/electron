@@ -45,6 +45,11 @@ Role kRolesMap[] = {
   { @selector(performZoom:), "zoom" },
   { @selector(terminate:), "quit" },
   { @selector(toggleFullScreen:), "togglefullscreen" },
+  { @selector(toggleTabBar:), "toggletabbar" },
+  { @selector(selectNextTab:), "selectnexttab" },
+  { @selector(selectPreviousTab:), "selectprevioustab" },
+  { @selector(mergeAllWindows:), "mergeallwindows" },
+  { @selector(moveTabToNewWindow:), "movetabtonewwindow" },
 };
 
 }  // namespace
@@ -70,7 +75,7 @@ Role kRolesMap[] = {
   // while its context menu is still open.
   [self cancel];
 
-  model_ = NULL;
+  model_ = nullptr;
   [super dealloc];
 }
 

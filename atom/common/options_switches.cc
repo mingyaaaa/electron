@@ -36,6 +36,8 @@ const char kSkipTaskbar[] = "skipTaskbar";
 // http://www.opera.com/support/mastering/kiosk/
 const char kKiosk[] = "kiosk";
 
+const char kSimpleFullScreen[] = "simpleFullscreen";
+
 // Make windows stays on the top of all other windows.
 const char kAlwaysOnTop[] = "alwaysOnTop";
 
@@ -47,6 +49,9 @@ const char kUseContentSize[] = "useContentSize";
 
 // Whether window zoom should be to page width.
 const char kZoomToPageWidth[] = "zoomToPageWidth";
+
+// Whether always show title text in full screen is enabled.
+const char kFullscreenWindowTitle[] = "fullscreenWindowTitle";
 
 // The requested title bar style for the window
 const char kTitleBarStyle[] = "titleBarStyle";
@@ -128,12 +133,18 @@ const char kDisableBlinkFeatures[] = "disableBlinkFeatures";
 // Enable the node integration in WebWorker.
 const char kNodeIntegrationInWorker[] = "nodeIntegrationInWorker";
 
+// Enable the web view tag.
+const char kWebviewTag[] = "webviewTag";
+
 }  // namespace options
 
 namespace switches {
 
 // Enable chromium sandbox.
 const char kEnableSandbox[] = "enable-sandbox";
+
+// Enable sandbox in only remote content windows.
+const char kEnableMixedSandbox[] = "enable-mixed-sandbox";
 
 // Enable plugins.
 const char kEnablePlugins[] = "enable-plugins";
@@ -159,6 +170,9 @@ const char kSecureSchemes[] = "secure-schemes";
 // The browser process app model ID
 const char kAppUserModelId[] = "app-user-model-id";
 
+// The application path
+const char kAppPath[] = "app-path";
+
 // The command line switch versions of the options.
 const char kBackgroundColor[]  = "background-color";
 const char kPreloadScript[]    = "preload";
@@ -169,6 +183,8 @@ const char kGuestInstanceID[]  = "guest-instance-id";
 const char kOpenerID[]         = "opener-id";
 const char kScrollBounce[]     = "scroll-bounce";
 const char kHiddenPage[]       = "hidden-page";
+const char kNativeWindowOpen[] = "native-window-open";
+const char kWebviewTag[]       = "webview-tag";
 
 // Command switch passed to renderer process to control nodeIntegration.
 const char kNodeIntegrationInWorker[]  = "node-integration-in-worker";

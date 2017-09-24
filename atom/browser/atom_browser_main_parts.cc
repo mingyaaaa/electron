@@ -4,6 +4,7 @@
 
 #include "atom/browser/atom_browser_main_parts.h"
 
+#include "atom/browser/api/atom_api_app.h"
 #include "atom/browser/api/trackable_object.h"
 #include "atom/browser/atom_access_token_store.h"
 #include "atom/browser/atom_browser_client.h"
@@ -129,17 +130,14 @@ void AtomBrowserMainParts::PostEarlyInitialization() {
 
   node_bindings_->Initialize();
 
-  // Support the "--debug" switch.
-  node_debugger_.reset(new NodeDebugger(js_env_->isolate()));
-
   // Create the global environment.
   node::Environment* env =
       node_bindings_->CreateEnvironment(js_env_->context());
   node_env_.reset(new NodeEnvironment(env));
 
-  // Make sure node can get correct environment when debugging.
-  if (node_debugger_->IsRunning())
-    env->AssignToContext(v8::Debug::GetDebugContext(js_env_->isolate()));
+  // Enable support for v8 inspector
+  node_debugger_.reset(new NodeDebugger(env));
+  node_debugger_->Start();
 
   // Add Electron extended APIs.
   atom_bindings_->BindTo(js_env_->isolate(), env->process_object());
@@ -186,6 +184,8 @@ void AtomBrowserMainParts::PreMainMessageLoopRun() {
   std::unique_ptr<base::DictionaryValue> empty_info(new base::DictionaryValue);
   Browser::Get()->DidFinishLaunching(*empty_info);
 #endif
+
+  Browser::Get()->PreMainMessageLoopRun();
 }
 
 bool AtomBrowserMainParts::MainMessageLoopRun(int* result_code) {

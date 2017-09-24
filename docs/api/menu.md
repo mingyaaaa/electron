@@ -1,5 +1,6 @@
 ## Class: Menu
 
+
 > Create native application menus and context menus.
 
 Process: [Main](../glossary.md#main-process)
@@ -16,14 +17,21 @@ The `menu` class has the following static methods:
 
 * `menu` Menu
 
-Sets `menu` as the application menu on macOS. On Windows and Linux, the `menu`
-will be set as each window's top menu.
+Sets `menu` as the application menu on macOS. On Windows and Linux, the
+`menu` will be set as each window's top menu.
+
+Passing `null` will remove the menu bar on Windows and Linux but has no
+effect on macOS.
 
 **Note:** This API has to be called after the `ready` event of `app` module.
 
 #### `Menu.getApplicationMenu()`
 
 Returns `Menu` - The application menu, if set, or `null`, if not set.
+
+**Note:** The returned `Menu` instance doesn't support dynamic addition or
+removal of menu items. [Instance properties](#instance-properties) can still
+be dynamically modified.
 
 #### `Menu.sendActionToFirstResponder(action)` _macOS_
 
@@ -57,8 +65,9 @@ The `menu` object has the following instance methods:
 * `browserWindow` BrowserWindow (optional) - Default is the focused window.
 * `options` Object (optional)
   * `x` Number (optional) - Default is the current mouse cursor position.
-  * `y` Number (**required** if `x` is used) - Default is the current mouse
-    cursor position.
+    Must be declared if `y` is declared.
+  * `y` Number (optional) - Default is the current mouse cursor position.
+    Must be declared if `x` is declared.
   * `async` Boolean (optional) - Set to `true` to have this method return
     immediately called, `false` to return after the menu has been selected
     or closed. Defaults to `false`.
@@ -93,7 +102,7 @@ Inserts the `menuItem` to the `pos` position of the menu.
 
 #### `menu.items`
 
-A MenuItem[] array containing the menu's items.
+A `MenuItem[]` array containing the menu's items.
 
 Each `Menu` consists of multiple [`MenuItem`](menu-item.md)s and each `MenuItem`
 can have a submenu.
@@ -234,7 +243,7 @@ Linux. Here are some notes on making your app's menu more native-like.
 
 On macOS there are many system-defined standard menus, like the `Services` and
 `Windows` menus. To make your menu a standard menu, you should set your menu's
-`role` to one of following and Electron will recognize them and make them
+`role` to one of the following and Electron will recognize them and make them
 become standard menus:
 
 * `window`

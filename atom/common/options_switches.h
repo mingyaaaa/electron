@@ -31,10 +31,12 @@ extern const char kClosable[];
 extern const char kFullscreen[];
 extern const char kSkipTaskbar[];
 extern const char kKiosk[];
+extern const char kSimpleFullScreen[];
 extern const char kAlwaysOnTop[];
 extern const char kAcceptFirstMouse[];
 extern const char kUseContentSize[];
 extern const char kZoomToPageWidth[];
+extern const char kFullscreenWindowTitle[];
 extern const char kTitleBarStyle[];
 extern const char kTabbingIdentifier[];
 extern const char kAutoHideMenuBar[];
@@ -64,6 +66,7 @@ extern const char kScrollBounce[];
 extern const char kBlinkFeatures[];
 extern const char kDisableBlinkFeatures[];
 extern const char kNodeIntegrationInWorker[];
+extern const char kWebviewTag[];
 
 }   // namespace options
 
@@ -73,6 +76,7 @@ extern const char kNodeIntegrationInWorker[];
 namespace switches {
 
 extern const char kEnableSandbox[];
+extern const char kEnableMixedSandbox[];
 extern const char kEnablePlugins[];
 extern const char kPpapiFlashPath[];
 extern const char kPpapiFlashVersion[];
@@ -81,6 +85,7 @@ extern const char kStandardSchemes[];
 extern const char kRegisterServiceWorkerSchemes[];
 extern const char kSecureSchemes[];
 extern const char kAppUserModelId[];
+extern const char kAppPath[];
 
 extern const char kBackgroundColor[];
 extern const char kPreloadScript[];
@@ -91,7 +96,9 @@ extern const char kGuestInstanceID[];
 extern const char kOpenerID[];
 extern const char kScrollBounce[];
 extern const char kHiddenPage[];
+extern const char kNativeWindowOpen[];
 extern const char kNodeIntegrationInWorker[];
+extern const char kWebviewTag[];
 
 extern const char kWidevineCdmPath[];
 extern const char kWidevineCdmVersion[];

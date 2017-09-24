@@ -67,10 +67,12 @@ def main():
     run_python_script('upload-index-json.py')
 
     # Create and upload the Electron SHASUMS*.txt
-    release_electron_checksums(github, release)
+    release_electron_checksums(release)
 
     # Press the publish button.
     publish_release(github, release['id'])
+
+    # TODO: run publish-to-npm script here
 
     # Do not upload other files when passed "-p".
     return
@@ -81,6 +83,7 @@ def main():
   if PLATFORM == 'darwin':
     upload_electron(github, release, os.path.join(DIST_DIR,
                     'electron-api.json'))
+    upload_electron(github, release, os.path.join(DIST_DIR, 'electron.d.ts'))
     upload_electron(github, release, os.path.join(DIST_DIR, DSYM_NAME))
   elif PLATFORM == 'win32':
     upload_electron(github, release, os.path.join(DIST_DIR, PDB_NAME))
@@ -101,6 +104,7 @@ def main():
     run_python_script('upload-windows-pdb.py')
 
     # Upload node headers.
+    run_python_script('create-node-headers.py', '-v', args.version)
     run_python_script('upload-node-headers.py', '-v', args.version)
 
 
@@ -120,7 +124,7 @@ def run_python_script(script, *args):
 
 
 def get_electron_build_version():
-  if get_target_arch() == 'arm' or os.environ.has_key('CI'):
+  if get_target_arch().startswith('arm') or os.environ.has_key('CI'):
     # In CI we just build as told.
     return ELECTRON_VERSION
   if PLATFORM == 'darwin':
@@ -180,7 +184,7 @@ def create_or_get_release_draft(github, releases, tag, tag_exists):
 
 
 def create_release_draft(github, tag):
-  name = '{0} {1}'.format(PROJECT_NAME, tag)
+  name = '{0} {1} beta'.format(PROJECT_NAME, tag)
   if os.environ.has_key('CI'):
     body = '(placeholder)'
   else:
@@ -189,16 +193,19 @@ def create_release_draft(github, tag):
     sys.stderr.write('Quit due to empty release note.\n')
     sys.exit(0)
 
-  data = dict(tag_name=tag, name=name, body=body, draft=True)
+  data = dict(tag_name=tag, name=name, body=body, draft=True, prerelease=True)
   r = github.repos(ELECTRON_REPO).releases.post(data=data)
   return r
 
 
-def release_electron_checksums(github, release):
+def release_electron_checksums(release):
   checksums = run_python_script('merge-electron-checksums.py',
                                 '-v', ELECTRON_VERSION)
-  upload_io_to_github(github, release, 'SHASUMS256.txt',
-                      StringIO(checksums.decode('utf-8')), 'text/plain')
+  filename = 'SHASUMS256.txt'
+  filepath = os.path.join(SOURCE_ROOT, filename)
+  with open(filepath, 'w') as sha_file:
+      sha_file.write(checksums.decode('utf-8'))
+  upload_io_to_github(release, filename, filepath)
 
 
 def upload_electron(github, release, file_path):
@@ -213,8 +220,7 @@ def upload_electron(github, release, file_path):
       pass
 
   # Upload the file.
-  with open(file_path, 'rb') as f:
-    upload_io_to_github(github, release, filename, f, 'application/zip')
+  upload_io_to_github(release, filename, file_path)
 
   # Upload the checksum file.
   upload_sha256_checksum(release['tag_name'], file_path)
@@ -228,11 +234,11 @@ def upload_electron(github, release, file_path):
     upload_electron(github, release, arm_file_path)
 
 
-def upload_io_to_github(github, release, name, io, content_type):
-  params = {'name': name}
-  headers = {'Content-Type': content_type}
-  github.repos(ELECTRON_REPO).releases(release['id']).assets.post(
-      params=params, headers=headers, data=io, verify=False)
+def upload_io_to_github(release, filename, filepath):
+  print 'Uploading %s to Github' % \
+      (filename)
+  script_path = os.path.join(SOURCE_ROOT, 'script', 'upload-to-github.js')
+  execute(['node', script_path, filepath, filename, str(release['id'])])
 
 
 def upload_sha256_checksum(version, file_path):

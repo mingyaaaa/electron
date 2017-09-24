@@ -132,9 +132,10 @@ class PdfViewerUI::ResourceRequester
     request->set_method("GET");
 
     content::ResourceDispatcherHostImpl::Get()->InitializeURLRequest(
-        request.get(), content::Referrer(url, blink::WebReferrerPolicyDefault),
+        request.get(), content::Referrer(url, blink::kWebReferrerPolicyDefault),
         false,  // download.
-        render_process_id, render_view_id, render_frame_id, resource_context);
+        render_process_id, render_view_id, render_frame_id,
+        content::PREVIEWS_OFF, resource_context);
 
     content::ResourceRequestInfoImpl* info =
         content::ResourceRequestInfoImpl::ForRequest(request.get());
@@ -202,7 +203,8 @@ PdfViewerUI::PdfViewerUI(content::BrowserContext* browser_context,
       content::WebContentsObserver(web_ui->GetWebContents()),
       src_(src) {
   pdf_handler_ = new PdfViewerHandler(src);
-  web_ui->AddMessageHandler(pdf_handler_);
+  web_ui->AddMessageHandler(
+      std::unique_ptr<content::WebUIMessageHandler>(pdf_handler_));
   content::URLDataSource::Add(browser_context, new BundledDataSource);
 }
 

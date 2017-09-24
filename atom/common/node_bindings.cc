@@ -33,17 +33,18 @@
 // Electron's builtin modules.
 REFERENCE_MODULE(atom_browser_app);
 REFERENCE_MODULE(atom_browser_auto_updater);
+REFERENCE_MODULE(atom_browser_browser_view);
 REFERENCE_MODULE(atom_browser_content_tracing);
-REFERENCE_MODULE(atom_browser_dialog);
 REFERENCE_MODULE(atom_browser_debugger);
 REFERENCE_MODULE(atom_browser_desktop_capturer);
+REFERENCE_MODULE(atom_browser_dialog);
 REFERENCE_MODULE(atom_browser_download_item);
+REFERENCE_MODULE(atom_browser_global_shortcut);
 REFERENCE_MODULE(atom_browser_menu);
 REFERENCE_MODULE(atom_browser_net);
 REFERENCE_MODULE(atom_browser_power_monitor);
 REFERENCE_MODULE(atom_browser_power_save_blocker);
 REFERENCE_MODULE(atom_browser_protocol);
-REFERENCE_MODULE(atom_browser_global_shortcut);
 REFERENCE_MODULE(atom_browser_render_process_preferences);
 REFERENCE_MODULE(atom_browser_session);
 REFERENCE_MODULE(atom_browser_system_preferences);
@@ -55,6 +56,7 @@ REFERENCE_MODULE(atom_common_asar);
 REFERENCE_MODULE(atom_common_clipboard);
 REFERENCE_MODULE(atom_common_crash_reporter);
 REFERENCE_MODULE(atom_common_native_image);
+REFERENCE_MODULE(atom_common_notification);
 REFERENCE_MODULE(atom_common_screen);
 REFERENCE_MODULE(atom_common_shell);
 REFERENCE_MODULE(atom_common_v8_util);
@@ -196,12 +198,6 @@ node::Environment* NodeBindings::CreateEnvironment(
   base::FilePath helper_exec_path;
   PathService::Get(content::CHILD_PROCESS_EXE, &helper_exec_path);
   process.Set("helperExecPath", helper_exec_path);
-
-  // Set process._debugWaitConnect if --debug-brk was specified to stop
-  // the debugger on the first line
-  if (browser_env_ == BROWSER &&
-      base::CommandLine::ForCurrentProcess()->HasSwitch("debug-brk"))
-    process.Set("_debugWaitConnect", true);
 
   return env;
 }

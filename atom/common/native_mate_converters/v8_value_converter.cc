@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "base/logging.h"
+#include "base/memory/ptr_util.h"
 #include "base/values.h"
 #include "native_mate/dictionary.h"
 
@@ -167,44 +168,44 @@ base::Value* V8ValueConverter::FromV8Value(
 v8::Local<v8::Value> V8ValueConverter::ToV8ValueImpl(
      v8::Isolate* isolate, const base::Value* value) const {
   switch (value->GetType()) {
-    case base::Value::TYPE_NULL:
+    case base::Value::Type::NONE:
       return v8::Null(isolate);
 
-    case base::Value::TYPE_BOOLEAN: {
+    case base::Value::Type::BOOLEAN: {
       bool val = false;
       value->GetAsBoolean(&val);
       return v8::Boolean::New(isolate, val);
     }
 
-    case base::Value::TYPE_INTEGER: {
+    case base::Value::Type::INTEGER: {
       int val = 0;
       value->GetAsInteger(&val);
       return v8::Integer::New(isolate, val);
     }
 
-    case base::Value::TYPE_DOUBLE: {
+    case base::Value::Type::DOUBLE: {
       double val = 0.0;
       value->GetAsDouble(&val);
       return v8::Number::New(isolate, val);
     }
 
-    case base::Value::TYPE_STRING: {
+    case base::Value::Type::STRING: {
       std::string val;
       value->GetAsString(&val);
       return v8::String::NewFromUtf8(
           isolate, val.c_str(), v8::String::kNormalString, val.length());
     }
 
-    case base::Value::TYPE_LIST:
+    case base::Value::Type::LIST:
       return ToV8Array(isolate, static_cast<const base::ListValue*>(value));
 
-    case base::Value::TYPE_DICTIONARY:
+    case base::Value::Type::DICTIONARY:
       return ToV8Object(isolate,
                         static_cast<const base::DictionaryValue*>(value));
 
-    case base::Value::TYPE_BINARY:
+    case base::Value::Type::BINARY:
       return ToArrayBuffer(isolate,
-                           static_cast<const base::BinaryValue*>(value));
+                           static_cast<const base::Value*>(value));
 
     default:
       LOG(ERROR) << "Unexpected value type: " << value->GetType();
@@ -253,7 +254,7 @@ v8::Local<v8::Value> V8ValueConverter::ToV8Object(
 }
 
 v8::Local<v8::Value> V8ValueConverter::ToArrayBuffer(
-    v8::Isolate* isolate, const base::BinaryValue* value) const {
+    v8::Isolate* isolate, const base::Value* value) const {
   const char* data = value->GetBuffer();
   size_t length = value->GetSize();
 
@@ -308,23 +309,23 @@ base::Value* V8ValueConverter::FromV8ValueImpl(
     return nullptr;
 
   if (val->IsExternal())
-    return base::Value::CreateNullValue().release();
+    return base::MakeUnique<base::Value>().release();
 
   if (val->IsNull())
-    return base::Value::CreateNullValue().release();
+    return base::MakeUnique<base::Value>().release();
 
   if (val->IsBoolean())
-    return new base::FundamentalValue(val->ToBoolean()->Value());
+    return new base::Value(val->ToBoolean()->Value());
 
   if (val->IsInt32())
-    return new base::FundamentalValue(val->ToInt32()->Value());
+    return new base::Value(val->ToInt32()->Value());
 
   if (val->IsNumber())
-    return new base::FundamentalValue(val->ToNumber()->Value());
+    return new base::Value(val->ToNumber()->Value());
 
   if (val->IsString()) {
     v8::String::Utf8Value utf8(val->ToString());
-    return new base::StringValue(std::string(*utf8, utf8.length()));
+    return new base::Value(std::string(*utf8, utf8.length()));
   }
 
   if (val->IsUndefined())
@@ -340,7 +341,7 @@ base::Value* V8ValueConverter::FromV8ValueImpl(
           toISOString.As<v8::Function>()->Call(val, 0, nullptr);
       if (!result.IsEmpty()) {
         v8::String::Utf8Value utf8(result->ToString());
-        return new base::StringValue(std::string(*utf8, utf8.length()));
+        return new base::Value(std::string(*utf8, utf8.length()));
       }
     }
   }
@@ -349,7 +350,7 @@ base::Value* V8ValueConverter::FromV8ValueImpl(
     if (!reg_exp_allowed_)
       // JSON.stringify converts to an object.
       return FromV8Object(val->ToObject(), state, isolate);
-    return new base::StringValue(*v8::String::Utf8Value(val->ToString()));
+    return new base::Value(*v8::String::Utf8Value(val->ToString()));
   }
 
   // v8::Value doesn't have a ToArray() method for some reason.
@@ -381,7 +382,7 @@ base::Value* V8ValueConverter::FromV8Array(
     v8::Isolate* isolate) const {
   ScopedUniquenessGuard uniqueness_guard(state, val);
   if (!uniqueness_guard.is_valid())
-    return base::Value::CreateNullValue().release();
+    return base::MakeUnique<base::Value>().release();
 
   std::unique_ptr<v8::Context::Scope> scope;
   // If val was created in a different context than our current one, change to
@@ -410,7 +411,7 @@ base::Value* V8ValueConverter::FromV8Array(
     else
       // JSON.stringify puts null in places where values don't serialize, for
       // example undefined and functions. Emulate that behavior.
-      result->Append(base::Value::CreateNullValue());
+      result->Append(base::MakeUnique<base::Value>());
   }
   return result;
 }
@@ -419,7 +420,7 @@ base::Value* V8ValueConverter::FromNodeBuffer(
     v8::Local<v8::Value> value,
     FromV8ValueState* state,
     v8::Isolate* isolate) const {
-  return base::BinaryValue::CreateWithCopiedBuffer(
+  return base::Value::CreateWithCopiedBuffer(
       node::Buffer::Data(value), node::Buffer::Length(value)).release();
 }
 
@@ -429,7 +430,7 @@ base::Value* V8ValueConverter::FromV8Object(
     v8::Isolate* isolate) const {
   ScopedUniquenessGuard uniqueness_guard(state, val);
   if (!uniqueness_guard.is_valid())
-    return base::Value::CreateNullValue().release();
+    return base::MakeUnique<base::Value>().release();
 
   std::unique_ptr<v8::Context::Scope> scope;
   // If val was created in a different context than our current one, change to
@@ -490,7 +491,7 @@ base::Value* V8ValueConverter::FromV8Object(
     // there *is* a "windowId" property, but since it should be an int, code
     // on the browser which doesn't additionally check for null will fail.
     // We can avoid all bugs related to this by stripping null.
-    if (strip_null_from_objects_ && child->IsType(base::Value::TYPE_NULL))
+    if (strip_null_from_objects_ && child->IsType(base::Value::Type::NONE))
       continue;
 
     result->SetWithoutPathExpansion(std::string(*name_utf8, name_utf8.length()),

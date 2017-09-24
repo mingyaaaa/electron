@@ -70,7 +70,7 @@ The `role` property can have following values:
 * `editMenu` - Whole default "Edit" menu (Undo, Copy, etc.)
 * `windowMenu` - Whole default "Window" menu (Minimize, Close, etc.)
 
-The following additional roles are avaiable on macOS:
+The following additional roles are available on macOS:
 
 * `about` - Map to the `orderFrontStandardAboutPanel` action
 * `hide` - Map to the `hide` action
@@ -80,6 +80,11 @@ The following additional roles are avaiable on macOS:
 * `stopspeaking` - Map to the `stopSpeaking` action
 * `front` - Map to the `arrangeInFront` action
 * `zoom` - Map to the `performZoom` action
+* `toggletabbar` - Map to the `toggleTabBar` action
+* `selectnexttab` - Map to the `selectNextTab` action
+* `selectprevioustab` - Map to the `selectPreviousTab` action
+* `mergeallwindows` - Map to the `mergeAllWindows` action
+* `movetabtonewwindow` - Map to the `moveTabToNewWindow` action
 * `window` - The submenu is a "Window" menu
 * `help` - The submenu is a "Help" menu
 * `services` - The submenu is a "Services" menu
@@ -93,17 +98,17 @@ The following properties are available on instances of `MenuItem`:
 
 #### `menuItem.enabled`
 
-A Boolean indicating whether the item is enabled, this property can be
+A `Boolean` indicating whether the item is enabled, this property can be
 dynamically changed.
 
 #### `menuItem.visible`
 
-A Boolean indicating whether the item is visible, this property can be
+A `Boolean` indicating whether the item is visible, this property can be
 dynamically changed.
 
 #### `menuItem.checked`
 
-A Boolean indicating whether the item is checked, this property can be
+A `Boolean` indicating whether the item is checked, this property can be
 dynamically changed.
 
 A `checkbox` menu item will toggle the `checked` property on and off when
@@ -116,8 +121,8 @@ You can add a `click` function for additional behavior.
 
 #### `menuItem.label`
 
-A String representing the menu items visible label
+A `String` representing the menu items visible label
 
 #### `menuItem.click`
 
-A Function that is fired when the MenuItem recieves a click event
+A `Function` that is fired when the MenuItem receives a click event

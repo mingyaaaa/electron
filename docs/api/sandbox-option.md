@@ -47,12 +47,12 @@ app.on('ready', () => {
       sandbox: true
     }
   })
-  w.loadURL('http://google.com')
+  win.loadURL('http://google.com')
 })
 ```
 
 In the above code the `BrowserWindow` that was created has node.js disabled and can communicate
-only via IPC. The use of this option stops electron from creating a node.js runtime in the renderer. Also, 
+only via IPC. The use of this option stops electron from creating a node.js runtime in the renderer. Also,
 within this new window `window.open` follows the native behaviour (by default electron creates a `BrowserWindow`
 and returns a proxy to this via `window.open`).
 
@@ -60,13 +60,16 @@ It is important to note that this option alone won't enable the OS-enforced sand
 `--enable-sandbox` command-line argument must be passed to electron, which will
 force `sandbox: true` for all `BrowserWindow` instances.
 
+To enable OS-enforced sandbox on `BrowserWindow` or `webview` process with `sandbox:true` without causing
+entire app to be in sandbox, `--enable-mixed-sandbox` command-line argument must be passed to electron.
+This option is currently only supported on macOS and Windows.
 
 ```js
 let win
 app.on('ready', () => {
   // no need to pass `sandbox: true` since `--enable-sandbox` was enabled.
   win = new BrowserWindow()
-  w.loadURL('http://google.com')
+  win.loadURL('http://google.com')
 })
 ```
 
@@ -101,7 +104,7 @@ app.on('ready', () => {
       preload: 'preload.js'
     }
   })
-  w.loadURL('http://google.com')
+  win.loadURL('http://google.com')
 })
 ```
 
@@ -163,7 +166,11 @@ Currently the `require` function provided in the preload scope exposes the
 following modules:
 
 - `child_process`
-- `electron` (crashReporter, remote and ipcRenderer)
+- `electron`
+  - `crashReporter`
+  - `remote`
+  - `ipcRenderer`
+  - `webFrame`
 - `fs`
 - `os`
 - `timers`

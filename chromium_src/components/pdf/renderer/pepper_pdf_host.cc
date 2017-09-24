@@ -47,7 +47,7 @@ int32_t PepperPDFHost::OnHostMsgDidStartLoading(
   if (!render_frame)
     return PP_ERROR_FAILED;
 
-  render_frame->DidStartLoading();
+  render_frame->PluginDidStartLoading();
   return PP_OK;
 }
 
@@ -57,7 +57,7 @@ int32_t PepperPDFHost::OnHostMsgDidStopLoading(
   if (!render_frame)
     return PP_ERROR_FAILED;
 
-  render_frame->DidStopLoading();
+  render_frame->PluginDidStopLoading();
   return PP_OK;
 }
 
@@ -75,7 +75,7 @@ int32_t PepperPDFHost::OnHostMsgSaveAs(
   GURL url = instance->GetPluginURL();
   content::Referrer referrer;
   referrer.url = url;
-  referrer.policy = blink::WebReferrerPolicyDefault;
+  referrer.policy = blink::kWebReferrerPolicyDefault;
   referrer = content::Referrer::SanitizeForRequest(url, referrer);
   render_frame->Send(
       new PDFHostMsg_PDFSaveURLAs(render_frame->GetRoutingID(), url, referrer));
